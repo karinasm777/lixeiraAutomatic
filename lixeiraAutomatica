@@ -1,0 +1,65 @@
+#include <Ultrasonic.h>
+#include <Servo.h>
+
+#define TRIGGER_PIN  12
+#define ECHO_PIN     13
+
+Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
+ float cmMsec, inMsec;
+
+//Configurações do SERVO
+Servo myservo;
+int pos = 0;
+ 
+void setup() {
+Serial.begin(9600); 
+myservo.attach(9);
+}
+
+void loop() {
+  
+medicao_distancia();
+
+if(cmMsec<=20){
+Serial.println("Abrir Tampa da Lixeira");
+Serial.print("Distancia em CM: ");
+Serial.println(cmMsec);
+abrir__tampa_lixeira();
+delay(5000);
+while(cmMsec<=20){
+medicao_distancia(); 
+abrir__tampa_lixeira(); 
+}
+fechar__tampa_lixeira();
+}
+
+if(cmMsec>20){
+Serial.println("Fechar Tampa da Lixeira");
+fechar__tampa_lixeira();
+}
+
+}
+
+
+void medicao_distancia (){
+
+  long microsec = ultrasonic.timing();
+
+  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+  //inMsec = ultrasonic.convert(microsec, Ultrasonic::IN);
+  //Serial.print("MS: ");
+  //Serial.print(microsec);
+  Serial.print("Distancia em CM: ");
+  Serial.println(cmMsec);
+  //Serial.print(", IN: ");
+  //Serial.println(inMsec);
+  delay(500); 
+}
+
+void abrir__tampa_lixeira(){
+    myservo.write(150);              // tell servo to go to position in variable 'pos'  
+}
+
+void fechar__tampa_lixeira(){
+    myservo.write(90);              // tell servo to go to position in variable 'pos'
+}
